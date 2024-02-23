@@ -14,7 +14,16 @@ const initialState = {
 const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    logoutUser : (state,action)=>{
+      // localStorage.removeItem("user");
+      // return{
+      //   ...state,
+      //   user : null
+      // }
+      return state
+    }
+  },
   extraReducers: (builder) => {
     builder
       .addCase(registeruser.pending, (state, action) => {
@@ -36,7 +45,7 @@ const authSlice = createSlice({
         state.isError = true;
         state.message = action.payload;
       })
-      .addCase(logoutuser.fulfilled, (state,action) => {
+      .addCase(loginUser.pending, (state,action) => {
         state.user = null;
         state.isError = false;
         state.isSuccess = false;
@@ -55,6 +64,7 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+export const  {logoutUser}  = authSlice.actions;
 
 export const registeruser = createAsyncThunk(
   "RESISTER/USER",
@@ -68,13 +78,19 @@ export const registeruser = createAsyncThunk(
   }
 );
 
-export const logoutuser = createAsyncThunk("LOGOUT/USER", async () => {
-  localStorage.removeItem("user");
-});
 
 export const loginUser = createAsyncThunk("LOGIN/USER", async (loginData, thunkAPI) => {
   try {
     return await authService.login(loginData)
+  } catch (error) {
+    const message = error.response.data.message;
+      return thunkAPI.rejectWithValue(message);
+  }
+});
+
+export const registerUser = createAsyncThunk("REGISTER/USER", async (loginData, thunkAPI) => {
+  try {
+    return await authService.register(loginData)
   } catch (error) {
     const message = error.response.data.message;
       return thunkAPI.rejectWithValue(message);
